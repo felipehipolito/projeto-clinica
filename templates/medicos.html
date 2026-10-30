@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Médicos - Clínica Vida</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">Clínica Vida</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('painel') }}">Início</a></li>
+            <li><a href="{{ url_for('usuarios') }}">Usuários</a></li>
+            <li><a href="{{ url_for('medicos') }}" class="active">Médicos</a></li>
+            <li><a href="{{ url_for('pacientes') }}">Pacientes</a></li>
+            <li><a href="{{ url_for('agendamentos') }}">Agendamentos</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-sair">Sair</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="card form-card">
+            <h3>{% if medico_edit %}Editar Médico{% else %}Cadastrar Médico{% endif %}</h3><br>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'sucesso' if category == 'sucesso' else 'erro' }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{% if medico_edit %}{{ url_for('editar_medico', id=medico_edit.id_medico) }}{% else %}{{ url_for('medicos') }}{% endif %}" method="POST">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" name="nome" value="{{ medico_edit.nome if medico_edit else '' }}" required placeholder="Nome do Médico">
+                </div>
+                <div class="form-group">
+                    <label>CRM</label>
+                    <input type="text" name="crm" value="{{ medico_edit.crm if medico_edit else '' }}" required placeholder="Ex: CRM-SP 123456">
+                </div>
+                <div class="form-group">
+                    <label>Especialidade</label>
+                    <input type="text" name="especialidade" value="{{ medico_edit.especialidade if medico_edit else '' }}" required placeholder="Ex: Cardiologia">
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" name="telefone" value="{{ medico_edit.telefone if medico_edit else '' }}" required placeholder="(11) 99999-9999">
+                </div>
+                <button type="submit">{% if medico_edit %}Salvar Alterações{% else %}Cadastrar{% endif %}</button>
+                {% if medico_edit %}
+                    <a href="{{ url_for('medicos') }}" class="btn-cancelar">Cancelar</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="card list-card">
+            <h3>Lista de Médicos</h3><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>CRM</th>
+                        <th>Especialidade</th>
+                        <th>Telefone</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in medicos %}
+                    <tr>
+                        <td>{{ m.id_medico }}</td>
+                        <td>{{ m.nome }}</td>
+                        <td>{{ m.crm }}</td>
+                        <td>{{ m.especialidade }}</td>
+                        <td>{{ m.telefone }}</td>
+                        <td>
+                            <a href="{{ url_for('editar_medico', id=m.id_medico) }}" class="btn-acao btn-editar">Editar</a>
+                            <a href="{{ url_for('excluir_medico', id=m.id_medico) }}" class="btn-acao btn-excluir" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

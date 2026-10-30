@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Usuários - Clínica Vida</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">Clínica Vida</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('painel') }}">Início</a></li>
+            <li><a href="{{ url_for('usuarios') }}" class="active">Usuários</a></li>
+            <li><a href="{{ url_for('medicos') }}">Médicos</a></li>
+            <li><a href="{{ url_for('pacientes') }}">Pacientes</a></li>
+            <li><a href="{{ url_for('agendamentos') }}">Agendamentos</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-sair">Sair</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="card form-card">
+            <h3>{% if usuario_edit %}Editar Usuário{% else %}Cadastrar Usuário{% endif %}</h3><br>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'sucesso' if category == 'sucesso' else 'erro' }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{% if usuario_edit %}{{ url_for('editar_usuario', id=usuario_edit.id_usuario) }}{% else %}{{ url_for('usuarios') }}{% endif %}" method="POST">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" name="nome" value="{{ usuario_edit.nome if usuario_edit else '' }}" required placeholder="Nome do Usuário">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" name="email" value="{{ usuario_edit.email if usuario_edit else '' }}" required placeholder="email@exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" name="senha" value="{{ usuario_edit.senha if usuario_edit else '' }}" required placeholder="Sua Senha">
+                </div>
+                <button type="submit">{% if usuario_edit %}Salvar Alterações{% else %}Cadastrar{% endif %}</button>
+                {% if usuario_edit %}
+                    <a href="{{ url_for('usuarios') }}" class="btn-cancelar">Cancelar</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="card list-card">
+            <h3>Lista de Usuários</h3><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td>{{ u.id_usuario }}</td>
+                        <td>{{ u.nome }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            <a href="{{ url_for('editar_usuario', id=u.id_usuario) }}" class="btn-acao btn-editar">Editar</a>
+                            <a href="{{ url_for('excluir_usuario', id=u.id_usuario) }}" class="btn-acao btn-excluir" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

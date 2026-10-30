@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel - Clínica Vida</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">Clínica Vida</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('painel') }}" class="active">Início</a></li>
+            <li><a href="{{ url_for('usuarios') }}">Usuários</a></li>
+            <li><a href="{{ url_for('medicos') }}">Médicos</a></li>
+            <li><a href="{{ url_for('pacientes') }}">Pacientes</a></li>
+            <li><a href="{{ url_for('agendamentos') }}">Agendamentos</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-sair">Sair</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="card" style="width: 100%;">
+            <h2>Bem-vindo ao Painel</h2><br>
+            <p>Sessão ativa como: <strong>{{ usuario }}</strong></p>
+        </div>
+    </div>
+
+</body>
+</html>

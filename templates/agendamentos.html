@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Agendamentos - Clínica Vida</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">Clínica Vida</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('painel') }}">Início</a></li>
+            <li><a href="{{ url_for('usuarios') }}">Usuários</a></li>
+            <li><a href="{{ url_for('medicos') }}">Médicos</a></li>
+            <li><a href="{{ url_for('pacientes') }}">Pacientes</a></li>
+            <li><a href="{{ url_for('agendamentos') }}" class="active">Agendamentos</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-sair">Sair</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="card form-card">
+            <h3>{% if agendamento_edit %}Editar Agendamento{% else %}Novo Agendamento{% endif %}</h3><br>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'sucesso' if category == 'sucesso' else 'erro' }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{% if agendamento_edit %}{{ url_for('editar_agendamento', id=agendamento_edit.id_agendamento) }}{% else %}{{ url_for('agendamentos') }}{% endif %}" method="POST">
+                <div class="form-group">
+                    <label>Paciente</label>
+                    <select name="id_paciente" required>
+                        <option value="">Selecione um Paciente</option>
+                        {% for p in pacientes %}
+                            <option value="{{ p.id_paciente }}" {% if agendamento_edit and agendamento_edit.id_paciente == p.id_paciente %}selected{% endif %}>{{ p.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Médico</label>
+                    <select name="id_medico" required>
+                        <option value="">Selecione um Médico</option>
+                        {% for m in medicos %}
+                            <option value="{{ m.id_medico }}" {% if agendamento_edit and agendamento_edit.id_medico == m.id_medico %}selected{% endif %}>{{ m.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" name="data_consulta" value="{{ agendamento_edit.data_consulta if agendamento_edit else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Horário</label>
+                    <input type="time" name="hora_consulta" value="{{ agendamento_edit.hora_consulta if agendamento_edit else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição / Observação</label>
+                    <textarea name="descricao" rows="3" placeholder="Ex: Retorno, primeira consulta...">{{ agendamento_edit.descricao if agendamento_edit else '' }}</textarea>
+                </div>
+
+                <button type="submit">{% if agendamento_edit %}Salvar Alterações{% else %}Agendar{% endif %}</button>
+                {% if agendamento_edit %}
+                    <a href="{{ url_for('agendamentos') }}" class="btn-cancelar">Cancelar</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="card list-card">
+            <h3>Lista de Agendamentos</h3><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Descrição</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agendamentos %}
+                    <tr>
+                        <td>{{ a.nome_paciente }}</td>
+                        <td>{{ a.nome_medico }}</td>
+                        <td>{{ a.data_consulta }}</td>
+                        <td>{{ a.hora_consulta }}</td>
+                        <td>{{ a.descricao or '-' }}</td>
+                        <td>
+                            <span class="status-badge status-{{ a.status }}">{{ a.status }}</span>
+                        </td>
+                        <td>
+                            {% if a.status != 'cancelada' %}
+                                <a href="{{ url_for('editar_agendamento', id=a.id_agendamento) }}" class="btn-acao btn-editar">Editar</a>
+                                <a href="{{ url_for('cancelar_agendamento', id=a.id_agendamento) }}" class="btn-acao btn-excluir" onclick="return confirm('Deseja realmente cancelar este agendamento?')">Cancelar</a>
+                            {% else %}
+                                <small style="color: #6c757d;">Sem ações</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

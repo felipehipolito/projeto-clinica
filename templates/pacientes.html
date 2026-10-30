@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Pacientes - Clínica Vida</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">Clínica Vida</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('painel') }}">Início</a></li>
+            <li><a href="{{ url_for('usuarios') }}">Usuários</a></li>
+            <li><a href="{{ url_for('medicos') }}">Médicos</a></li>
+            <li><a href="{{ url_for('pacientes') }}" class="active">Pacientes</a></li>
+            <li><a href="{{ url_for('agendamentos') }}">Agendamentos</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-sair">Sair</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="card form-card">
+            <h3>{% if paciente_edit %}Editar Paciente{% else %}Cadastrar Paciente{% endif %}</h3><br>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'sucesso' if category == 'sucesso' else 'erro' }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{% if paciente_edit %}{{ url_for('editar_paciente', id=paciente_edit.id_paciente) }}{% else %}{{ url_for('pacientes') }}{% endif %}" method="POST">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" name="nome" value="{{ paciente_edit.nome if paciente_edit else '' }}" required placeholder="Nome do Paciente">
+                </div>
+                <div class="form-group">
+                    <label>CPF</label>
+                    <input type="text" name="cpf" value="{{ paciente_edit.cpf if paciente_edit else '' }}" required placeholder="123.456.789-00">
+                </div>
+                <div class="form-group">
+                    <label>Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" value="{{ paciente_edit.data_nascimento if paciente_edit else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" name="telefone" value="{{ paciente_edit.telefone if paciente_edit else '' }}" required placeholder="(11) 99999-9999">
+                </div>
+                <div class="form-group">
+                    <label>Endereço</label>
+                    <input type="text" name="endereco" value="{{ paciente_edit.endereco if paciente_edit else '' }}" required placeholder="Rua, número, bairro">
+                </div>
+                <button type="submit">{% if paciente_edit %}Salvar Alterações{% else %}Cadastrar{% endif %}</button>
+                {% if paciente_edit %}
+                    <a href="{{ url_for('pacientes') }}" class="btn-cancelar">Cancelar</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="card list-card">
+            <h3>Lista de Pacientes</h3><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Nascimento</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pacientes %}
+                    <tr>
+                        <td>{{ p.id_paciente }}</td>
+                        <td>{{ p.nome }}</td>
+                        <td>{{ p.cpf }}</td>
+                        <td>{{ p.data_nascimento }}</td>
+                        <td>{{ p.telefone }}</td>
+                        <td>{{ p.endereco }}</td>
+                        <td>
+                            <a href="{{ url_for('editar_paciente', id=p.id_paciente) }}" class="btn-acao btn-editar">Editar</a>
+                            <a href="{{ url_for('excluir_paciente', id=p.id_paciente) }}" class="btn-acao btn-excluir" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
